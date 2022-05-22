@@ -133,7 +133,7 @@ The output file is [here.](./allignment/converted_to_bam.bam)
 
 #### b. Sort and index the result BAM file
 
-Using this command:
+Using this command we sorted the `.bam` file and crearted the `sorted_bam.bam` file:
 
 ```bash
 samtools sort "./allignment/converted_to_bam.bam" "./allignment/sorted_bam"
@@ -141,10 +141,16 @@ samtools sort "./allignment/converted_to_bam.bam" "./allignment/sorted_bam"
 
 And the output file is [here.](./allignment/sorted_bam.bam)
 
-And using this command we created the index file:
+And using this command we created the index file out of the sorted bam file and created a `.bai` file:
 
 ```bash
 samtools index "./allignment/sorted_bam.bam"
 ```
 
 And the output file is [here.](./allignment/sorted_indexed.bam.bai)
+
+#### c. Write a python script that reads the BAM file and write all entries with mapping quality score more than 30 to a new BAM file. Hint: use pysam package to perform this
+
+The python script to do so is in [this file](main.ipynb).
+
+**NOTE:** *Before running the script you need to have `pysam` and `samtools` installed in your machine.*
