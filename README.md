@@ -130,3 +130,5 @@ samtools view -b -o "./allignment/converted_to_bam.bam" "./allignment/alligned_s
 ```
 
 The output file is [here.](./allignment/converted_to_bam.bam)
+
+#### b. Sort and index the result BAM file
