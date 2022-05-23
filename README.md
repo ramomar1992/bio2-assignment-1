@@ -49,13 +49,20 @@ After running the following commands to trim both files in parallel:
 trim_galore --paired --quality 32 --phred33 --fastqc --fastqc_args "--outdir './post_trim/fastqc'" --output_dir "./post_trim" --illumina --dont_gzip --length 25 --max_n 10 "./init_fasta/Sample_R1.fastq" "./init_fasta/Sample_R2.fastq"
 ```
 
+The newly created fastq files are:
+1. [Sample_R1](post_trim/Sample_R1_val_1.fq)
+2. [Sample_R2](post_trim/Sample_R2_val_2.fq)
+
 The summary of the operation after using trim_galore is:
 
 1. [Sample_R1](post_trim/Sample_R1.fastq_trimming_report.txt)
-2. [Sample_R2](post_trim/Sample_R2_val_2.fq)
+2. [Sample_R2](post_trim/Sample_R2.fastq_trimming_report.txt)
 
 ```txt
 Sample_R1
+
+=== Summary ===
+
 Total reads processed:                  10,000
 Reads with adapters:                     3,818 (38.2%)
 Reads written (passing filters):        10,000 (100.0%)
@@ -64,23 +71,35 @@ Total basepairs processed:       760,000 bp
 Quality-trimmed:                 169,585 bp (22.3%)
 Total written (filtered):        574,614 bp (75.6%)
 
-10000 sequences processed in total
-Sequences removed because they became shorter than the length cutoff of 25 bp: 980 (9.8%)
-Sequences removed because they contained more Ns than the cutoff of 10: 0 (0.0%)
---------------------------------------------------------
+=== Adapter 1 ===
 
+Sequence: AGATCGGAAGAGC; Type: regular 3'; Length: 13; Trimmed: 3818 times
+
+--------------------------------------------------------
 Sample_R2
+
+=== Summary ===
+
 Total reads processed:                  10,000
-Reads with adapters:                     3,874 (38.7%)
+Reads with adapters:                     3,795 (38.0%)
 Reads written (passing filters):        10,000 (100.0%)
 
 Total basepairs processed:       760,000 bp
-Quality-trimmed:                  84,815 bp (11.2%)
-Total written (filtered):        653,843 bp (86.0%)
+Quality-trimmed:                  98,847 bp (13.0%)
+Total written (filtered):        640,878 bp (84.3%)
 
+=== Adapter 1 ===
+
+Sequence: AGATCGGAAGAGC; Type: regular 3'; Length: 13; Trimmed: 3795 times
+
+RUN STATISTICS FOR INPUT FILE: ./init_fasta/Sample_R2.fastq
+=============================================
 10000 sequences processed in total
-Sequences removed because they became shorter than the length cutoff of 25 bp: 909 (9.1%)
-Sequences removed because they contained more Ns than the cutoff of 15: 0 (0.0%)
+
+Number of sequence pairs removed because at least one read contained more N(s) than the specified limit of 10: 0 (0.00%)
+Total number of sequences analysed for the sequence pair length validation: 10000
+
+Number of sequence pairs removed because at least one read was shorter than the length cutoff (25 bp): 1624 (16.24%)
 ```
 
 ### 4. Re-run FastQC and make sure that all issues have been resolved
@@ -154,3 +173,10 @@ And the output file is [here.](./allignment/sorted_indexed.bam.bai)
 The python script to do so is in [this file](main.ipynb).
 
 **NOTE:** *Before running the script you need to have `pysam` and `samtools` installed in your machine.*
+
+- This script uses the `pysam` package by imporing it useing the python import: `import pysam as ps`.
+- I use the `AlignmentFile` method from the `pysam` package to read the `.bam` file that was sorted and prepared. I also have to provide some options to the method since it needs the `mode` and `index_filename`.
+- Then using the `.fetch()` method on the bam file object I can iterate over all reads alligned to the reference. When we find that the read has more than or equal 30 `mapping_quality` score we write it to the output file which is in `created_bam` directory. This uses a file creation script from the documentation.
+- To be able to open the new file, we need to have a new index to it. So I import the `os` module to be able to execute shell scrips from within the python script.
+- The script uses the `samtools` software create an index to the new `.bam` file. using the script `samtools index ./created_bam/0ver_30_quality_mapping.bam ./created_bam/0ver_30_quality_mapping.bam.bai`, which will crete the index in the same directory and the same naming convention as the original `.bam` file.
+- Then I will be able to read the file providing the created index from the `samtools` and output the mapped reads. 
